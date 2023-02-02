@@ -61,14 +61,6 @@ exports.editTask = async (title, userId, taskId) => {
     return task
 }
 
-exports.updateUser = async (data, userId) => {
-    return await User.update(data, {
-        where: {
-            id: userId
-        }
-    })
-}
-
 exports.deleteUser = async (userId) => {
     const user = await User.findByPk(userId)
     await user.destroy()

@@ -169,3 +169,60 @@ describe('getTasks', () => {
         expect(mockRes.json).toBeCalledWith({message:'Internal Server Error'})
     })
 })
+
+describe('getTask', () => { 
+
+    it('should get a task', async () => {
+        const data = {
+            id: 1,
+            title: 'task 1',
+            userId: 1
+        }
+        jest.spyOn(userServices, 'getTask').mockResolvedValue(data)
+        const mockReq = {
+            params: {
+                userId: 1,
+                taskId: 1
+            }
+        }
+        const mockRes = {
+            status: jest.fn().mockReturnThis(),
+            json: jest.fn()
+        }
+        await userControllers.getTask(mockReq, mockRes)
+        expect(mockRes.status).toBeCalledWith(200)
+        expect(mockRes.json).toBeCalledWith(data)
+    })
+    it('should throw an error', async () => {
+        jest.spyOn(userServices, 'getTask').mockResolvedValue(null)
+        const mockReq = {
+            params: {
+                userId: 1,
+                taskId: 1
+            }
+        }
+        const mockRes = {
+            status: jest.fn().mockReturnThis(),
+            json: jest.fn()
+        }
+        await userControllers.getTask(mockReq, mockRes)
+        expect(mockRes.status).toBeCalledWith(404)
+        expect(mockRes.json).toBeCalledWith({message: 'Task not found'})
+    })
+    it('should throw a server error', async () => {
+        jest.spyOn(userServices, 'getTask').mockRejectedValue(new Error('Internal Server Error'))
+        const mockReq = {
+            params: {
+                userId: 1,
+                taskId: 1
+            }
+        }
+        const mockRes = {
+            status: jest.fn().mockReturnThis(),
+            json: jest.fn()
+        }
+        await userControllers.getTask(mockReq, mockRes)
+        expect(mockRes.status).toBeCalledWith(500)
+        expect(mockRes.json).toBeCalledWith({message:'Internal Server Error'})
+    })
+})

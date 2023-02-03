@@ -125,42 +125,54 @@ describe('getUser', () => {
 describe('editTask', () => {
     it('should edit a task', async () => {
         const data = {
-            id: 1,
-            title: 'task 1',
-            userId: 1
+            taskId: 1,
+            title: 'updated task',
+            userId: 1,
+            save: jest.fn()
         }
-        const task = jest.spyOn(User, 'findByPk').mockResolvedValue({
-            tasks: data
+        const jestSpied = jest.spyOn(User, 'findByPk').mockResolvedValue({
+            tasks: [data]
         })
-        const result = await userServices.editTask(1, data)
 
-        expect(task).toBeCalledWith(1, 1, {
-            where: {
-                id: 1
+        const result = await userServices.editTask(data.title, data.userId, data.taskId)
+
+        expect(jestSpied).toBeCalledWith(data.userId, {
+            include: {
+                model: Task,
+                as: 'tasks',
+                where: {
+                    id: data.taskId
+                }
             }
         })
+        expect(data.save).toBeCalled()
         expect(result).toEqual(data)
     })
 })
 
-describe('deleteUser', () => {
-    it('should delete a user', async () => {
+describe('deleteTask', () => {
+    it('should delete a task', async () => {
         const data = {
-            id: 1,
-            name: 'harsh agarwal',
-            email: 'harsh821agarwal@gmail.com',
-            tasks: [],
+            taskId: 1,
+            userId: 1,
+            destroy: jest.fn()
         }
+        const jestSpied = jest.spyOn(User, 'findByPk').mockResolvedValue({
+            tasks: [data]
+        })
 
-        const user = jest.spyOn(User, 'destroy').mockResolvedValue(data)
+        const result = await userServices.deleteTask(data.userId, data.taskId)
 
-        const result = await userServices.deleteUser(1)
-
-        expect(user).toBeCalledWith({
-            where: {
-                id: 1
+        expect(jestSpied).toBeCalledWith(data.userId, {
+            include: {
+                model: Task,
+                as: 'tasks',
+                where: {
+                    id: data.taskId
+                }
             }
         })
-        expect(result).toEqual(data)
+        expect(data.destroy).toBeCalled()
+        expect(result).toEqual(undefined)
     })
 })
